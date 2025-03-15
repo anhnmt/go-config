@@ -25,7 +25,7 @@ name: "my_app"
 debug: true
 ```
 
-### 3️⃣ **Load Configuration with DefaultConfig**
+### 3️⃣ **Load Configuration with InitConfig**
 ```go
 package main
 
@@ -36,7 +36,7 @@ import (
 
 func main() {
     var cfg Config
-    err := DefaultConfig("./config", "dev", &cfg)
+    err := InitConfig("./config", "dev", &cfg)
     if err != nil {
         log.Fatalf("Error loading config: %v", err)
     }
@@ -44,9 +44,9 @@ func main() {
 }
 ```
 
-## 🔧 DefaultConfig Function Details
+## 🔧 InitConfig Function Details
 ```go
-func DefaultConfig(dir, env string, cfg any) error
+func InitConfig(dir, env string, cfg any) error
 ```
 ### ✅ **Parameters**
 - `dir`: Path to the directory containing the configuration files.
