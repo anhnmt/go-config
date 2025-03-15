@@ -9,14 +9,12 @@ import (
 
 func unwrapPointer(iface any) (reflect.Value, reflect.Type) {
 	v := reflect.ValueOf(iface)
-	t := reflect.TypeOf(iface)
 
 	for v.Kind() == reflect.Pointer {
 		v = v.Elem()
-		t = t.Elem()
 	}
 
-	return v, t
+	return v, v.Type()
 }
 
 func bindValues(iface any, parts ...string) {
