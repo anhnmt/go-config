@@ -4,6 +4,8 @@ go 1.24
 
 require github.com/spf13/viper v1.19.0
 
+replace github.com/mitchellh/mapstructure => github.com/go-viper/mapstructure v1.6.0
+
 require (
 	github.com/fsnotify/fsnotify v1.8.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
