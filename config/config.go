@@ -12,10 +12,11 @@ import (
 
 var File = "dev.yml"
 
-// InitConfig load config file and bind values to cfg
+// InitConfig loads the config file and binds values to cfg.
 //
-// err := config.InitConfig(dir, env, &cfg)
+// Example usage:
 //
+//	err := config.InitConfig(dir, env, &cfg)
 //	if err != nil {
 //	    ...
 //	}
@@ -29,17 +30,17 @@ func InitConfig(dir, env string, cfg any) error {
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 	viper.AutomaticEnv()
 
-	var configFileNotFoundError viper.ConfigFileNotFoundError
-	err = viper.ReadInConfig() // Find and read the config file
-	if err != nil && !errors.As(err, &configFileNotFoundError) {
-		return fmt.Errorf("fatal error config file: %w", err)
+	if err = viper.ReadInConfig(); err != nil {
+		var configNotFound viper.ConfigFileNotFoundError
+		if !errors.As(err, &configNotFound) {
+			return fmt.Errorf("fatal error reading config file: %w", err)
+		}
 	}
 
 	bindValues(cfg)
 
-	err = viper.Unmarshal(cfg)
-	if err != nil {
-		return fmt.Errorf("unable to decode into struct, %v", err)
+	if err = viper.Unmarshal(cfg); err != nil {
+		return fmt.Errorf("unable to decode into struct: %w", err)
 	}
 
 	return nil
