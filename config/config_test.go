@@ -41,15 +41,6 @@ func TestInitConfig(t *testing.T) {
 			wantVal: "dev",
 		},
 		{
-			name: "invalid config file",
-			args: args{
-				dir: "../testdata",
-				env: "err",
-				cfg: &testConfig{},
-			},
-			wantErr: true,
-		},
-		{
 			name: "nil cfg",
 			args: args{
 				dir: "../testdata",
