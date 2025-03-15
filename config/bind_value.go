@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"reflect"
 	"strings"
 
@@ -31,10 +32,14 @@ func processField(v reflect.Value, t reflect.Type, parts []string) {
 			key := strings.Join(append(parts, tag), ".")
 			envKey := strings.ToUpper(strings.ReplaceAll(key, ".", "_"))
 
-			_ = viper.BindEnv(key, envKey)
+			if err := viper.BindEnv(key, envKey); err != nil {
+				fmt.Printf("Warning: Failed to bind environment variable %s: %v\n", envKey, err)
+			}
 
-			if value, hasDefault := field.Tag.Lookup("default"); hasDefault {
-				viper.SetDefault(key, value)
+			if !viper.IsSet(key) {
+				if value, hasDefault := field.Tag.Lookup("default"); hasDefault {
+					viper.SetDefault(key, value)
+				}
 			}
 
 			if fieldVal.Kind() == reflect.Struct {
