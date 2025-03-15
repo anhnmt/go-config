@@ -21,13 +21,10 @@ var File = "dev.yml"
 //	    ...
 //	}
 func InitConfig(dir, env string, cfg any) error {
-	if cfg == nil {
-		return errors.New("cfg must not be nil")
-	}
+	v := reflect.ValueOf(cfg)
 
-	cfgType := reflect.TypeOf(cfg)
-	if cfgType.Kind() != reflect.Ptr || cfgType.Elem().Kind() != reflect.Struct {
-		return fmt.Errorf("cfg must be a pointer to a struct, got %s", cfgType.Kind())
+	if v.Kind() != reflect.Ptr || v.IsNil() {
+		return fmt.Errorf("cfg must be a non-nil pointer to a struct, got %T", cfg)
 	}
 
 	path, err := filePath(dir, env)
