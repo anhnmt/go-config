@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"reflect"
 	"strings"
 
 	"github.com/spf13/viper"
@@ -16,11 +17,19 @@ var File = "dev.yml"
 //
 // Example usage:
 //
-//	err := config.InitConfig(dir, env, &cfg)
-//	if err != nil {
+//	if err := config.InitConfig(dir, env, &cfg) err != nil {
 //	    ...
 //	}
 func InitConfig(dir, env string, cfg any) error {
+	if cfg == nil {
+		return errors.New("cfg must not be nil")
+	}
+
+	cfgType := reflect.TypeOf(cfg)
+	if cfgType.Kind() != reflect.Ptr || cfgType.Elem().Kind() != reflect.Struct {
+		return fmt.Errorf("cfg must be a pointer to a struct, got %s", cfgType.Kind())
+	}
+
 	path, err := filePath(dir, env)
 	if err != nil {
 		return fmt.Errorf("get config file path error: %w", err)
