@@ -55,7 +55,7 @@ func filePath(dir, env string) (string, error) {
 	}
 
 	if env != "" {
-		File = fmt.Sprintf("%s.yml", env)
+		File = env + ".yml"
 	}
 
 	return filepath.ToSlash(filepath.Join(dir, File)), nil
