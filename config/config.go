@@ -1,16 +1,16 @@
 package config
 
 import (
-    "errors"
-    "fmt"
-    "os"
-    "path/filepath"
-    "strings"
+	"errors"
+	"fmt"
+	"os"
+	"path/filepath"
+	"strings"
 
-    "github.com/spf13/viper"
+	"github.com/spf13/viper"
 )
 
-var File = "config/dev.yml"
+var File = "dev.yml"
 
 // InitConfig load config file and bind values to cfg
 //
@@ -20,43 +20,43 @@ var File = "config/dev.yml"
 //	    ...
 //	}
 func InitConfig(dir, env string, cfg any) error {
-    path, err := filePath(dir, env)
-    if err != nil {
-        return fmt.Errorf("get config file path error: %w", err)
-    }
+	path, err := filePath(dir, env)
+	if err != nil {
+		return fmt.Errorf("get config file path error: %w", err)
+	}
 
-    viper.SetConfigFile(path)
-    viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
-    viper.AutomaticEnv()
+	viper.SetConfigFile(path)
+	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
+	viper.AutomaticEnv()
 
-    var configFileNotFoundError viper.ConfigFileNotFoundError
-    err = viper.ReadInConfig() // Find and read the config file
-    if err != nil && !errors.As(err, &configFileNotFoundError) {
-        return fmt.Errorf("fatal error config file: %w", err)
-    }
+	var configFileNotFoundError viper.ConfigFileNotFoundError
+	err = viper.ReadInConfig() // Find and read the config file
+	if err != nil && !errors.As(err, &configFileNotFoundError) {
+		return fmt.Errorf("fatal error config file: %w", err)
+	}
 
-    bindValues(cfg)
+	bindValues(cfg)
 
-    err = viper.Unmarshal(cfg)
-    if err != nil {
-        return fmt.Errorf("unable to decode into struct, %v", err)
-    }
+	err = viper.Unmarshal(cfg)
+	if err != nil {
+		return fmt.Errorf("unable to decode into struct, %v", err)
+	}
 
-    return nil
+	return nil
 }
 
 func filePath(dir, env string) (string, error) {
-    if dir == "" {
-        var err error
-        dir, err = os.Getwd()
-        if err != nil {
-            return "", fmt.Errorf("getwd error: %w", err)
-        }
-    }
+	if dir == "" {
+		var err error
+		dir, err = os.Getwd()
+		if err != nil {
+			return "", fmt.Errorf("getwd error: %w", err)
+		}
+	}
 
-    if env != "" {
-        File = fmt.Sprintf("config/%s.yml", env)
-    }
+	if env != "" {
+		File = fmt.Sprintf("%s.yml", env)
+	}
 
-    return filepath.ToSlash(filepath.Join(dir, File)), nil
+	return filepath.ToSlash(filepath.Join(dir, File)), nil
 }
