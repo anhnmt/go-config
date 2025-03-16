@@ -8,43 +8,48 @@ import (
 	"github.com/spf13/viper"
 )
 
-func unwrapPointer(iface any) (reflect.Value, reflect.Type) {
-	v := reflect.ValueOf(iface)
-
-	for v.Kind() == reflect.Pointer {
-		v = v.Elem()
-	}
-
-	return v, v.Type()
-}
-
 func bindValues(iface any, parts ...string) {
-	ifv, ift := unwrapPointer(iface)
-	processField(ifv, ift, parts)
+	v := reflect.Indirect(reflect.ValueOf(iface))
+	processField(v, v.Type(), parts)
 }
 
 func processField(v reflect.Value, t reflect.Type, parts []string) {
+	partsLen := len(parts)
+
 	for i := 0; i < t.NumField(); i++ {
 		field := t.Field(i)
 		fieldVal := v.Field(i)
 
-		if tag, ok := field.Tag.Lookup("mapstructure"); ok {
-			key := strings.Join(append(parts, tag), ".")
-			envKey := strings.ToUpper(strings.ReplaceAll(key, ".", "_"))
+		tag, hasTag := field.Tag.Lookup("mapstructure")
+		if !hasTag {
+			continue
+		}
 
-			if err := viper.BindEnv(key, envKey); err != nil {
-				fmt.Printf("Warning: Failed to bind environment variable %s: %v\n", envKey, err)
-			}
+		key := tag
+		if partsLen > 0 {
+			key = strings.Join(append(parts, tag), ".")
+		}
+		envKey := strings.ToUpper(strings.ReplaceAll(key, ".", "_"))
 
-			if !viper.IsSet(key) {
-				if value, hasDefault := field.Tag.Lookup("default"); hasDefault {
-					viper.SetDefault(key, value)
-				}
-			}
+		if err := viper.BindEnv(key, envKey); err != nil {
+			fmt.Printf("Warning: Failed to bind environment variable %s: %v\n", envKey, err)
+		}
 
-			if fieldVal.Kind() == reflect.Struct {
-				processField(fieldVal, field.Type, append(parts, tag))
+		if !viper.IsSet(key) {
+			if value, hasDefault := field.Tag.Lookup("default"); hasDefault {
+				viper.SetDefault(key, value)
 			}
+		}
+
+		if fieldVal.Kind() == reflect.Ptr {
+			if fieldVal.IsNil() {
+				fieldVal.Set(reflect.New(field.Type.Elem()))
+			}
+			fieldVal = fieldVal.Elem()
+		}
+
+		if fieldVal.Kind() == reflect.Struct {
+			processField(fieldVal, fieldVal.Type(), append(parts, tag))
 		}
 	}
 }
