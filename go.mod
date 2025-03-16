@@ -1,4 +1,4 @@
-module github.com/anhnmt/go-config
+module github.com/anhnmt/go-defaultconfig
 
 go 1.24
 
