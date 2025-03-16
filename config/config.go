@@ -9,10 +9,16 @@ import (
 	"github.com/spf13/viper"
 )
 
+const (
+	defaultConfigType = "yml"
+	defaultConfigName = "dev"
+	defaultConfigPath = "."
+)
+
 func init() {
-	viper.SetConfigType("yml")
-	viper.SetConfigName("dev")
-	viper.AddConfigPath(".")
+	viper.SetConfigType(defaultConfigType)
+	viper.SetConfigName(defaultConfigName)
+	viper.AddConfigPath(defaultConfigPath)
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 	viper.AutomaticEnv()
 }
@@ -31,11 +37,11 @@ func InitConfig(dir, env string, cfg any) error {
 		return fmt.Errorf("cfg must be a non-nil pointer to a struct, got %T", cfg)
 	}
 
-	if dir != "" {
+	if dir != "" && dir != defaultConfigPath {
 		viper.AddConfigPath(dir)
 	}
 
-	if env != "" {
+	if env != "" && dir != defaultConfigName {
 		viper.SetConfigName(env)
 	}
 
