@@ -8,12 +8,12 @@ import (
 	"github.com/spf13/viper"
 )
 
-func bindValues(iface any, parts ...string) {
+func bindValues(iface any) {
 	v := reflect.Indirect(reflect.ValueOf(iface))
-	processField(v, v.Type(), parts)
+	processField(v, v.Type())
 }
 
-func processField(v reflect.Value, t reflect.Type, parts []string) {
+func processField(v reflect.Value, t reflect.Type, parts ...string) {
 	partsLen := len(parts)
 
 	for i := 0; i < t.NumField(); i++ {
@@ -49,7 +49,7 @@ func processField(v reflect.Value, t reflect.Type, parts []string) {
 		}
 
 		if fieldVal.Kind() == reflect.Struct {
-			processField(fieldVal, fieldVal.Type(), append(parts, tag))
+			processField(fieldVal, fieldVal.Type(), append(parts, tag)...)
 		}
 	}
 }
