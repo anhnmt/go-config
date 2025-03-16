@@ -4,8 +4,14 @@ import (
 	"testing"
 )
 
+type nestedConfig struct {
+	SubName string `mapstructure:"sub_name" default:"nested"`
+}
+
 type testConfig struct {
-	Name string `mapstructure:"name" default:"test"`
+	Name   string       `mapstructure:"name" default:"test"`
+	PtrVal *string      `mapstructure:"ptr_val" default:"ptr_default"`
+	Nested nestedConfig `mapstructure:"nested"`
 }
 
 func TestInitConfig(t *testing.T) {
@@ -19,6 +25,8 @@ func TestInitConfig(t *testing.T) {
 		args    args
 		wantErr bool
 		wantVal string
+		wantPtr *string
+		wantSub string
 	}{
 		{
 			name: "valid config with default",
@@ -29,6 +37,8 @@ func TestInitConfig(t *testing.T) {
 			},
 			wantErr: false,
 			wantVal: "test",
+			wantPtr: strPtr("ptr_default"),
+			wantSub: "nested",
 		},
 		{
 			name: "valid config with env override",
@@ -39,9 +49,47 @@ func TestInitConfig(t *testing.T) {
 			},
 			wantErr: false,
 			wantVal: "dev",
+			wantPtr: strPtr("ptr_default"),
+			wantSub: "nested",
 		},
 		{
-			name: "nil cfg",
+			name: "config with non-existing env",
+			args: args{
+				dir: "../testdata",
+				env: "non_existing_env",
+				cfg: &testConfig{},
+			},
+			wantErr: false,
+			wantVal: "dev",
+			wantPtr: strPtr("ptr_default"),
+			wantSub: "nested",
+		},
+		{
+			name: "config with pointer field and nil",
+			args: args{
+				dir: "../testdata",
+				env: "dev",
+				cfg: &testConfig{PtrVal: nil},
+			},
+			wantErr: false,
+			wantVal: "dev",
+			wantPtr: strPtr("ptr_default"), // Default value should be set
+			wantSub: "nested",
+		},
+		{
+			name: "config with nested struct",
+			args: args{
+				dir: "../testdata",
+				env: "dev",
+				cfg: &testConfig{},
+			},
+			wantErr: false,
+			wantVal: "dev",
+			wantPtr: strPtr("ptr_default"),
+			wantSub: "nested",
+		},
+		{
+			name: "cfg is nil",
 			args: args{
 				dir: "../testdata",
 				env: "dev",
@@ -50,7 +98,7 @@ func TestInitConfig(t *testing.T) {
 			wantErr: true,
 		},
 		{
-			name: "nil pointer cfg",
+			name: "cfg is a nil pointer",
 			args: args{
 				dir: "../testdata",
 				env: "dev",
@@ -104,8 +152,20 @@ func TestInitConfig(t *testing.T) {
 			}
 
 			if cfg.Name != tt.wantVal {
-				t.Fatalf("InitConfig() got = %v, want %v", cfg.Name, tt.wantVal)
+				t.Fatalf("InitConfig() got Name = %v, want %v", cfg.Name, tt.wantVal)
+			}
+
+			if cfg.PtrVal == nil || *cfg.PtrVal != *tt.wantPtr {
+				t.Fatalf("InitConfig() got PtrVal = %v, want %v", cfg.PtrVal, tt.wantPtr)
+			}
+
+			if cfg.Nested.SubName != tt.wantSub {
+				t.Fatalf("InitConfig() got Nested.SubName = %v, want %v", cfg.Nested.SubName, tt.wantSub)
 			}
 		})
 	}
+}
+
+func strPtr(s string) *string {
+	return &s
 }
