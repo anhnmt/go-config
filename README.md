@@ -6,7 +6,7 @@
 
 Add the library to your project:
 ```sh
-go get github.com/anhnmt/go-defaultconfig
+go get -u github.com/anhnmt/go-defaultconfig
 ```
 
 ## 🛠️ Usage
@@ -25,7 +25,7 @@ name: "my_app"
 debug: true
 ```
 
-### 3️⃣ **Load Configuration with InitConfig**
+### 3️⃣ **Load Configuration with Load**
 ```go
 package main
 
@@ -36,7 +36,7 @@ import (
 
 func main() {
     var cfg Config
-    err := InitConfig("./config", "dev", &cfg)
+    err := defaultconfig.Load("./config", "dev", &cfg)
     if err != nil {
         log.Fatalf("Error loading config: %v", err)
     }
@@ -44,9 +44,9 @@ func main() {
 }
 ```
 
-## 🔧 InitConfig Function Details
+## 🔧 Load Function Details
 ```go
-func InitConfig(dir, env string, cfg any) error
+func Load(dir, env string, cfg any) error
 ```
 ### ✅ **Parameters**
 - `dir`: Path to the directory containing the configuration files.
