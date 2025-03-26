@@ -1,4 +1,4 @@
-package config
+package defaultconfig
 
 import (
 	"testing"
@@ -14,7 +14,7 @@ type testConfig struct {
 	Nested nestedConfig `mapstructure:"nested"`
 }
 
-func TestInitConfig(t *testing.T) {
+func TestLoad(t *testing.T) {
 	type args struct {
 		dir string
 		env string
@@ -31,7 +31,7 @@ func TestInitConfig(t *testing.T) {
 		{
 			name: "valid config with default",
 			args: args{
-				dir: "../testdata",
+				dir: "testdata",
 				env: "nothing",
 				cfg: &testConfig{},
 			},
@@ -43,7 +43,7 @@ func TestInitConfig(t *testing.T) {
 		{
 			name: "valid config with env override",
 			args: args{
-				dir: "../testdata",
+				dir: "testdata",
 				env: "dev",
 				cfg: &testConfig{},
 			},
@@ -55,7 +55,7 @@ func TestInitConfig(t *testing.T) {
 		{
 			name: "config with non-existing env",
 			args: args{
-				dir: "../testdata",
+				dir: "testdata",
 				env: "non_existing_env",
 				cfg: &testConfig{},
 			},
@@ -67,7 +67,7 @@ func TestInitConfig(t *testing.T) {
 		{
 			name: "config with pointer field and nil",
 			args: args{
-				dir: "../testdata",
+				dir: "testdata",
 				env: "dev",
 				cfg: &testConfig{PtrVal: nil},
 			},
@@ -79,7 +79,7 @@ func TestInitConfig(t *testing.T) {
 		{
 			name: "config with nested struct",
 			args: args{
-				dir: "../testdata",
+				dir: "testdata",
 				env: "dev",
 				cfg: &testConfig{},
 			},
@@ -91,7 +91,7 @@ func TestInitConfig(t *testing.T) {
 		{
 			name: "cfg is nil",
 			args: args{
-				dir: "../testdata",
+				dir: "testdata",
 				env: "dev",
 				cfg: nil,
 			},
@@ -100,7 +100,7 @@ func TestInitConfig(t *testing.T) {
 		{
 			name: "cfg is a nil pointer",
 			args: args{
-				dir: "../testdata",
+				dir: "testdata",
 				env: "dev",
 				cfg: (*testConfig)(nil),
 			},
@@ -118,7 +118,7 @@ func TestInitConfig(t *testing.T) {
 		{
 			name: "cfg is not a struct",
 			args: args{
-				dir: "../testdata",
+				dir: "testdata",
 				env: "dev",
 				cfg: 1,
 			},
@@ -127,7 +127,7 @@ func TestInitConfig(t *testing.T) {
 		{
 			name: "cfg is a struct (not pointer)",
 			args: args{
-				dir: "../testdata",
+				dir: "testdata",
 				env: "dev",
 				cfg: testConfig{},
 			},
@@ -137,9 +137,9 @@ func TestInitConfig(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			err := InitConfig(tt.args.dir, tt.args.env, tt.args.cfg)
+			err := Load(tt.args.dir, tt.args.env, tt.args.cfg)
 			if (err != nil) != tt.wantErr {
-				t.Fatalf("InitConfig() error = %v, wantErr %v", err, tt.wantErr)
+				t.Fatalf("Load() error = %v, wantErr %v", err, tt.wantErr)
 			}
 
 			if tt.args.cfg == nil || err != nil {
@@ -148,19 +148,19 @@ func TestInitConfig(t *testing.T) {
 
 			cfg, ok := tt.args.cfg.(*testConfig)
 			if !ok {
-				t.Fatalf("InitConfig() cfg is not of type *testConfig, got %T", tt.args.cfg)
+				t.Fatalf("Load() cfg is not of type *testConfig, got %T", tt.args.cfg)
 			}
 
 			if cfg.Name != tt.wantVal {
-				t.Fatalf("InitConfig() got Name = %v, want %v", cfg.Name, tt.wantVal)
+				t.Fatalf("Load() got Name = %v, want %v", cfg.Name, tt.wantVal)
 			}
 
 			if cfg.PtrVal == nil || *cfg.PtrVal != *tt.wantPtr {
-				t.Fatalf("InitConfig() got PtrVal = %v, want %v", cfg.PtrVal, tt.wantPtr)
+				t.Fatalf("Load() got PtrVal = %v, want %v", cfg.PtrVal, tt.wantPtr)
 			}
 
 			if cfg.Nested.SubName != tt.wantSub {
-				t.Fatalf("InitConfig() got Nested.SubName = %v, want %v", cfg.Nested.SubName, tt.wantSub)
+				t.Fatalf("Load() got Nested.SubName = %v, want %v", cfg.Nested.SubName, tt.wantSub)
 			}
 		})
 	}

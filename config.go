@@ -1,4 +1,4 @@
-package config
+package defaultconfig
 
 import (
 	"errors"
@@ -23,14 +23,14 @@ func init() {
 	viper.AutomaticEnv()
 }
 
-// InitConfig loads the config file and binds values to cfg.
+// Load loads the config file and binds values to cfg.
 //
 // Example usage:
 //
-//	if err := config.InitConfig(dir, env, &cfg) err != nil {
+//	if err := config.Load(dir, env, &cfg) err != nil {
 //	    ...
 //	}
-func InitConfig(dir, env string, cfg any) error {
+func Load(dir, env string, cfg any) error {
 	v := reflect.ValueOf(cfg)
 
 	if v.Kind() != reflect.Ptr || v.IsNil() {
